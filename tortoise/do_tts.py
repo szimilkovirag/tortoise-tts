@@ -24,6 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--produce_debug_state', type=bool, help='Whether or not to produce debug_state.pth, which can aid in reproducing problems. Defaults to true.', default=True)
     parser.add_argument('--cvvp_amount', type=float, help='How much the CVVP model should influence the output.'
                                                           'Increasing this can in some cases reduce the likelihood of multiple speakers. Defaults to 0 (disabled)', default=.0)
+    parser.add_argument('--name_id', type=int, help='The N-th input string', default=0)
     args = parser.parse_args()
     if torch.backends.mps.is_available():
         args.use_deepspeed = False
@@ -42,9 +43,9 @@ if __name__ == '__main__':
                                   preset=args.preset, use_deterministic_seed=args.seed, return_deterministic_state=True, cvvp_amount=args.cvvp_amount)
         if isinstance(gen, list):
             for j, g in enumerate(gen):
-                torchaudio.save(os.path.join(args.output_path, f'{selected_voice}_{k}_{j}.wav'), g.squeeze(0).cpu(), 24000)
+                torchaudio.save(os.path.join(args.output_path, f'{selected_voice}_{args.name_id}_{k}_{j}.wav'), g.squeeze(0).cpu(), 24000)
         else:
-            torchaudio.save(os.path.join(args.output_path, f'{selected_voice}_{k}.wav'), gen.squeeze(0).cpu(), 24000)
+            torchaudio.save(os.path.join(args.output_path, f'{selected_voice}_{args.name_id}_{k}.wav'), gen.squeeze(0).cpu(), 24000)
 
         if args.produce_debug_state:
             os.makedirs('debug_states', exist_ok=True)
